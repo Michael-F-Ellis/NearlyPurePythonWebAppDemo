@@ -9,15 +9,21 @@
   * Uses Jacques De Hooge's *Transcrypt™* Python to JS transpiler and Marcel Hellkamp's *Bottle Python Web Framework*. (http://bottlepy.org/docs/dev/)
 
 
-### Dependencies
-  * Python >= 3.5   https://www.python.org/downloads/
-  * Transcrypt >= 3.6.24  https://github.com/qquick/Transcrypt
-  * Bottle is included in this app.
+### Dependencies (install these first)
+  * [Python]( https://www.python.org/downloads/) >= 3.5  
+  * [Transcrypt™](http://transcrypt.org/) >= 3.6.24
+    * `pip install transcrypt`
+  * [Bottle](http://bottlepy.org/docs/dev/) >= 0.12.13
+      * `pip install bottle`
 
 ### Installation and usage
-  * `git clone` 
-  * `cd NearlyPurePythonWebAppDemo`
-  * `python serve.py`
+  ```
+  * git clone https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo 
+  * cd NearlyPurePythonWebAppDemo
+  * python serve.py
+  ```
   * browse to http://localhost:8800
+
+
 
 
