@@ -22,8 +22,11 @@
   * cd NearlyPurePythonWebAppDemo
   * python serve.py
   ```
-  * browse to http://localhost:8800
+  * browse to http://localhost:8800 . Your should see a screen like the one below with readout values updating every half-second. Values are color coded as follows:
+    * blue:  V <= 2.0 : blue
+    * green: 2.0 < V < 8.0 : green
+    * red:   V >= 8.0 red
 
-
+  ![Figure 1.](doc/img/nppwad.gif)
 
 
