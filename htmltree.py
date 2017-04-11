@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Description: Provides a general html tree class, E.
+
+This file is part of NearlyPurePythonWebAppDemo
+https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo
+
 Author: Michael Ellis
 Copyright 2017 Ellis & Grant, Inc.
+License: MIT License
 """
-class E:
+class Element:
     """
     Generalized nested html element with recursive rendering
 
@@ -28,6 +33,7 @@ class E:
         C : content
 
     Doctests:
+    >>> E = Element
     >>> doc = E('html', None, [])
     >>> doc.render()
     '<html></html>'
@@ -73,20 +79,30 @@ class E:
         if self.C is None:
             ## It's a singleton tag. Close it accordingly.
             rlist.append("/>\n")
+            needs_end_tag = False
         else:
             ## Close the tag normally
             rlist.append('>')
-            ## render the content
+            needs_end_tag = True
+
+        ## render the content
+        if isinstance(self.C, str):
+            rlist.append(self.C)
+        else:
             for c in self.C:
-                if hasattr(c, 'render'):
-                    rlist.append(c.render())
-                elif isinstance(c, str):
+                if isinstance(c, str):
                     rlist.append(c)
+                elif isinstance(c, (int, float)):
+                    rlist.append(str(c))
+                elif hasattr(c, 'render'):
+                    rlist.append(c.render())
                 else:
                     msg="Don't know what to do with content item {}".format(c)
                     raise ValueError(msg)
-            ## Add closing tag
+
+        if needs_end_tag:
             rlist.append('</{}>'.format(self.T))
+
         return ''.join(rlist)
 
 def renderstyle(d):

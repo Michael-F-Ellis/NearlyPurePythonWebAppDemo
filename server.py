@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Description:
+Description: Server for NearlyPurePythonWebAppDemo.
+
+Sources and more info at:
+https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo
 
 Author: Mike Ellis
 Copyright 2017 Ellis & Grant, Inc
+License: MIT License
 """
 
 
@@ -20,12 +24,11 @@ import subprocess
 import bottle
 import common
 from traceback import format_exc
+from htmltree import Element as E
 
 # Create an app instance.
 app = bottle.Bottle()
 request = bottle.request ## the request object accessor
-sys.path.append('..')
-from htmltree import E
 
 
 ############################################################
@@ -33,24 +36,28 @@ from htmltree import E
 ############################################################
 def buildIndexHtml():
     """
-    Create and save the index.html file.
+    Create the content index.html file. For the purposes of the demo, we
+    create it with an empty body element to be filled in on the client side.
     Returns: None
     Raises:  Nothing
     """
     jquery_url = 'https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js'
+
+    linkcolors = list(zip('link visited hover active'.split(),
+                          'red green hotpink blue'.split(),))
+    linkcss = '\n'.join(['a:{} {{color: {};}}'.format(s,c) for s,c in linkcolors])
+
     head = E('head', None,
              [
+              E('style', None, linkcss),
               E('script', {'src': jquery_url}, []),
               E('script', {'src':'/client.js', 'charset':'UTF-8'}, []),
               E('script', None, '$(document).ready(client.start)'),
              ])
-    readouts = []
-    for datakey in common.statekeys:
-        readouts.append(E('div', {'class':'readout', 'data-key':datakey}, 'waiting ...'))
 
     body = E('body', {'style':{'background-color':'black'}},
-            [E('h1', {'style':{'color':'yellow', 'text-align':'center'}}, "Readouts")])
-    body.C.extend(readouts)
+             "Replace me on the client side.")
+
     doc = E('html', None,[head, body])
     return doc.render()
 
@@ -73,6 +80,12 @@ def client():
 
 
 def stategen():
+    """
+    Initialize each state item with a random float between 0 and 10, then
+    on each next() call, 'walk' the value by a randomly chosen increment. The
+    purpose done to simulate a set of drifting measurements to be displayed
+    and color coded on the client side.
+    """
     last = time.time()
     counter = 0
     nitems = common.nitems
@@ -129,9 +142,14 @@ def needsBuild(target, sources):
 def serve(server='wsgiref', port=8800, reloader=False):
     """
     Build the html and js files, if needed, then launch the app.
-    Note: In larger projects with more complex dependencies, you'll
-    probably want to use make or scons to build the targets instead
-    of the simple approach taken here.
+
+    Notes: In larger projects with more complex dependencies, you'll probably
+    want to use make or scons to build the targets instead of the simple
+    approach taken here.
+
+    The default server is the single-threaded 'wsgiref' server that comes
+    with Python. It's fine for a demo, but for production you'll want to
+    use something better, e.g. server='cherrypy'.
     """
     bottle.debug(True) ## TODO remove this from production version.
 
