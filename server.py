@@ -65,7 +65,8 @@ def buildIndexHtml():
 ############################################################
 # Routes and callback functions
 # The following routes are defined below:
-#     /static
+#     /client.js
+#     /home (= /index.html = /)
 #     /getstate
 ############################################################
 
@@ -74,16 +75,22 @@ def client():
     """
     Route for serving client.js
     """
-    #root = os.path.join(os.environ['TOPDIR'], "static/")
     root = os.path.abspath("./__javascript__")
     return bottle.static_file('client.js', root=root)
 
+@app.route("/")
+@app.route("/index.html")
+@app.route("/home")
+def index():
+    """ Serve the home page """
+    root = os.path.abspath("./__html__")
+    return bottle.static_file('index.html', root=root)
 
 def stategen():
     """
     Initialize each state item with a random float between 0 and 10, then
     on each next() call, 'walk' the value by a randomly chosen increment. The
-    purpose done to simulate a set of drifting measurements to be displayed
+    purpose is to simulate a set of drifting measurements to be displayed
     and color coded on the client side.
     """
     last = time.time()
@@ -106,14 +113,6 @@ def stategen():
         yield state
 
 _stateg = stategen()
-
-@app.route("/")
-@app.route("/index.html")
-@app.route("/home")
-def index():
-    """ Serve the home page """
-    root = os.path.abspath("./__html__")
-    return bottle.static_file('index.html', root=root)
 
 @app.route("/getstate")
 def getstate():
@@ -147,9 +146,10 @@ def serve(server='wsgiref', port=8800, reloader=False):
     want to use make or scons to build the targets instead of the simple
     approach taken here.
 
-    The default server is the single-threaded 'wsgiref' server that comes
-    with Python. It's fine for a demo, but for production you'll want to
-    use something better, e.g. server='cherrypy'.
+    The default server is the single-threaded 'wsgiref' server that comes with
+    Python. It's fine for a demo, but for production you'll want to use
+    something better, e.g. server='cherrypy'. For an extensive list of server
+    options, see http://bottlepy.org/docs/dev/deployment.html
     """
     bottle.debug(True) ## TODO remove this from production version.
 
