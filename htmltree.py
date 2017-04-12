@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Description: Provides a general html tree class, E.
+Description: Provides a general html tree class, Element (often imported as E).
 
 This file is part of NearlyPurePythonWebAppDemo
 https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo
@@ -25,7 +25,8 @@ class Element:
         render()
 
     Static methods:
-        renderstyle(d)
+        renderstyle(d) -- moved to module level until Transcrypt supports
+                       -- method decorators.
 
     Public Members:
         T : tagname
@@ -41,11 +42,12 @@ class Element:
     >>> doc.render()
     '<html><head></head></html>'
     >>> body = E('body', {'style':{'background-color':'black'}}, [E('h1', None, "Title")])
+    >>> body.C.append(E('br', None, None))
     >>> body.render()
-    '<body style="background-color:black;"><h1>Title</h1></body>'
+    '<body style="background-color:black;"><h1>Title</h1><br/></body>'
     >>> doc.C.append(body)
     >>> doc.render()
-    '<html><head></head><body style="background-color:black;"><h1>Title</h1></body></html>'
+    '<html><head></head><body style="background-color:black;"><h1>Title</h1><br/></body></html>'
 
     """
     def __init__(self, tagname, attrs, content):
@@ -78,27 +80,27 @@ class Element:
 
         if self.C is None:
             ## It's a singleton tag. Close it accordingly.
-            rlist.append("/>\n")
+            rlist.append("/>")
             needs_end_tag = False
         else:
             ## Close the tag normally
             rlist.append('>')
             needs_end_tag = True
 
-        ## render the content
-        if isinstance(self.C, str):
-            rlist.append(self.C)
-        else:
-            for c in self.C:
-                if isinstance(c, str):
-                    rlist.append(c)
-                elif isinstance(c, (int, float)):
-                    rlist.append(str(c))
-                elif hasattr(c, 'render'):
-                    rlist.append(c.render())
-                else:
-                    msg="Don't know what to do with content item {}".format(c)
-                    raise ValueError(msg)
+            ## render the content
+            if isinstance(self.C, str):
+                rlist.append(self.C)
+            else:
+                for c in self.C:
+                    if isinstance(c, str):
+                        rlist.append(c)
+                    elif isinstance(c, (int, float)):
+                        rlist.append(str(c))
+                    elif hasattr(c, 'render'):
+                        rlist.append(c.render()) ## here's the recursion!
+                    else:
+                        msg="Don't know what to do with content item {}".format(c)
+                        raise ValueError(msg)
 
         if needs_end_tag:
             rlist.append('</{}>'.format(self.T))
