@@ -37,8 +37,15 @@ def makeBody():
     for datakey in common.statekeys:
         readouts.append(E('div', {'class':'readout', 'data-key':datakey}, 'waiting ...'))
 
+    stepinput = E('label', {'style':{'color':'white'}},
+            ["Step Size", E('input', {'id':'stepinput', 'type':'text','style':{'margin':'1em'}}, None)])
+    stepsubmit = E('input', {'type':'submit'}, None)
+    stepform = E('form', {'id':'setstep',},
+            [E('div',{'style':{'margin':'20px'}},[stepinput, stepsubmit])])
+
     bodycontent = E('div', None, [header])
     bodycontent.C.extend(readouts)
+    bodycontent.C.append(stepform)
 
     ## Use the DOM API to insert rendered content
     document.body.innerHTML = bodycontent.render()
@@ -77,6 +84,27 @@ def update_readouts():
     for jq_el, value, color in queue:
         jq_el.text(value).attr('style', "color:{}; font-size:32;".format(color))
 
+    ## Also update the stepsize input with the current value
+    jq('#stepsize').val(_state['stepsize'])
+
+
+def handle_stepchange(event):
+    """
+    Check that the request for a new step size is a number between 0 and 10
+    before allowing the submit action to proceed.
+    """
+    fail_msg = "Step size must be a number between 0 and 10"
+    v = jq('#stepinput').val()
+    # Transcrypt float() is buggy, so use some inline JS.
+    # See https://github.com/QQuick/Transcrypt/issues/314
+    #__pragma__('js','{}','var vj = parseFloat(v); var isfloat = !isNaN(vj);')
+    if isfloat and (0.0 <= vj <= 10.0):
+        ## It's valid. Send it.
+        jq.post('/setstepsize', { 'stepsize': v })
+        return False
+    else:
+        alert(fail_msg)
+        return False
 
 def start ():
     """
@@ -84,10 +112,15 @@ def start ():
     """
     ## Create the body content
     makeBody()
+
     ## Initialize the readouts
     global _jq_readouts
     _jq_readouts = jq('.readout')
     jq('.readout').css("font-size:12;")
+
+    ## Bind event handler to step change form
+    jq('#setstep').submit(handle_stepchange)
+
     ## Bind custom event handler to document
     jq(document).on('state:update', update_readouts)
 

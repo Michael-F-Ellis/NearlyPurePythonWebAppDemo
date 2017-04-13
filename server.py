@@ -68,6 +68,7 @@ def buildIndexHtml():
 #     /client.js
 #     /home (= /index.html = /)
 #     /getstate
+#     /setstepsize
 ############################################################
 
 @app.route('/client.js')
@@ -86,6 +87,9 @@ def index():
     root = os.path.abspath("./__html__")
     return bottle.static_file('index.html', root=root)
 
+## Module level variable used to exchange data beteen handlers
+_state = {}
+
 def stategen():
     """
     Initialize each state item with a random float between 0 and 10, then
@@ -97,21 +101,24 @@ def stategen():
     counter = 0
     nitems = common.nitems
     statekeys = common.statekeys
-    step = (-0.5, 0.0, 0.5)
+    _state['step'] = (-common.stepsize, 0.0, common.stepsize)
+    _state['stepsize'] = common.stepsize
     statevalues = [round(random.random()*10, 2) for n in range(nitems)]
-    state = dict(zip(statekeys, statevalues))
+    _state.update(dict(zip(statekeys, statevalues)))
     while True:
         ## Update no more frequently than twice per second
         now = time.time()
         if now - last >= 0.5:
             last = now
             counter += 1
+            step = _state['step']
             statevalues = [round(v + random.choice(step), 2) for v in statevalues]
             statevalues = [min(10.0, max(0.0, v)) for v in statevalues]
-            state = dict(zip(statekeys, statevalues))
-            state['count'] = counter
-        yield state
+            _state.update(dict(zip(statekeys, statevalues)))
+            _state['count'] = counter
+        yield
 
+## The generator needs to persist outside of handlers.
 _stateg = stategen()
 
 @app.route("/getstate")
@@ -121,7 +128,21 @@ def getstate():
     Returns: dict(count=n, item0=v0, item1=v1, ...)
     Raises:  Nothing
     """
-    return next(_stateg)
+    next(_stateg)
+    return _state
+
+@app.post("/setstepsize")
+def setStepSize():
+    """
+    Called when user submits step size input. Validation
+    happens client side so we don't check it here. In a real
+    app you'd want some server-side validation would help protect
+    against exploits.
+    """
+    stepsize = float(request.forms.get('stepsize'))
+    _state['stepsize'] = stepsize
+    _state['step'] = (-stepsize, 0, stepsize)
+    return {}
 
 ########################################################
 # Utility for checking target file ages

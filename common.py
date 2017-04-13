@@ -13,3 +13,5 @@ License: MIT License
 nitems = 10
 ## Enumerated names for each item.
 statekeys = ["item{}".format(n) for n in range(nitems)]
+## Initial step size for random walk
+stepsize = 0.5
