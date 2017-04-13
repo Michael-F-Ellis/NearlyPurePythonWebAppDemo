@@ -4,16 +4,18 @@
 
   * No static html, css, or js files
   * Demonstrates how to generate and manipulate html in pure python on both the client and server sides.
-  * A useful skeleton that include Ajax JSON state updates from server to client.
+  * A useful skeleton that include Ajax JSON state updates from server to client and vice versa.
   * Uses a little jQuery on the client side (hence the 'nearly' in Nearly Pure)
-  * Uses Jacques De Hooge's *Transcrypt™* Python to JS transpiler and Marcel Hellkamp's *Bottle Python Web Framework*. (http://bottlepy.org/docs/dev/)
+  * Powered by Jacques De Hooge's [*Transcrypt™*](https://transcrypt.org/) Python to JS transpiler and Marcel Hellkamp's [*Bottle Python Web Framework.*](http://bottlepy.org/docs/dev/)
 
 ### Who's this for?
-Developers with a taste for minimalism who want to experiment with a (mostly) pure python approach to web app development.
+  * Developers with a taste for minimalism who want to experiment with a (mostly) pure python approach to web app development.
+  * Course instructors looking a complete example students can use as a starting point.
 
 ### What can I do with it?
-  * Fork/clone it and use it as a starting point for projects.
+  * Fork or clone it as a starting point for your own projects.
   * Read the code. There are only 4 short files with less than 400 sloc total.
+  * Stare at the colorful numbers until you grok the message hidden there *just for you*<sup>[1](#hint)</sup></a>.
 
 ### Dependencies (install these first)
   * [Python]( https://www.python.org/downloads/) >= 3.5  
@@ -32,6 +34,9 @@ Developers with a taste for minimalism who want to experiment with a (mostly) pu
     * blue:  V <= 2.0 : blue
     * green: 2.0 < V < 8.0 : green
     * red:   V >= 8.0 red
+
+  * Change the Step Size to any number between 0 and 10.
+    * Larger values cause faster drifts through color ranges.
 
   ![Figure 1.](doc/img/nppwad.gif)
 
@@ -76,9 +81,13 @@ When the server starts for the first time, files are generated and the directory
 └── server.py
 ```
 
-## A parting thought
-### The Good News
-If you're already comfortable in Python and understand what goes on in a browser and web server, you can use this skeleton as a starting point for developing entirely in Python.
-
+## Parting Thoughts
 ### The Bad News
 While this approach can save you from the frustrations of dealing with .html, .css, and .js syntax, it can't save you from the need to *understand* the Document Object Model, browser events, ajax, http request routing, etc.
+
+### The Good News
+If you're already comfortable in Python and understand what goes on in a browser and web server, you can use this skeleton as a starting point for developing entirely in Python.
+<hr>
+Footnotes
+
+<a name="hint">1</a>: Biochemical assistance may be required. ;-)
