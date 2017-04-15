@@ -145,7 +145,7 @@ def setStepSize():
     return {}
 
 ########################################################
-# Utility for checking target file ages
+# Build functions
 ########################################################
 
 def needsBuild(target, sources):
@@ -155,25 +155,14 @@ def needsBuild(target, sources):
     """
     return not os.path.exists(target) or any([(os.stat(target).st_mtime
               < os.stat(source).st_mtime) for source in sources])
-
-########################################################
-## Wrapper so we can spawn this app from multiprocessing
-########################################################
-def serve(server='wsgiref', port=8800, reloader=False):
+def doBuild():
     """
-    Build the html and js files, if needed, then launch the app.
+    Build the html and js files, if needed.
 
-    Notes: In larger projects with more complex dependencies, you'll probably
+    Note: In larger projects with more complex dependencies, you'll probably
     want to use make or scons to build the targets instead of the simple
     approach taken here.
-
-    The default server is the single-threaded 'wsgiref' server that comes with
-    Python. It's fine for a demo, but for production you'll want to use
-    something better, e.g. server='cherrypy'. For an extensive list of server
-    options, see http://bottlepy.org/docs/dev/deployment.html
     """
-    bottle.debug(True) ## TODO remove this from production version.
-
     ## build the index.html file
     index_sources = ('server.py', 'htmltree.py', 'common.py')
     target = '__html__/index.html'
@@ -188,6 +177,39 @@ def serve(server='wsgiref', port=8800, reloader=False):
         proc = subprocess.Popen('transcrypt -b -n -m client.py', shell=True)
         if proc.wait() != 0:
             raise Exception("Failed trying to build client.js")
+
+class AppWrapperMiddleware:
+    """
+    Some hosted environments, e.g. pythonanywhere.com, require you
+    to export the Bottle app object. Exporting an instance of this
+    wrapper class makes sure the build procedure runs on startup.
+    """
+    def __init__(self, app):
+      self.app = app
+    def __call__(self, e, h):
+      doBuild()
+      return self.app(e,h)
+
+##################################################
+## Import this from external wsgi file
+app_for_wsgi_env = AppWrapperMiddleware(app)
+##################################################
+
+########################################################
+## Default wrapper  so we can spawn this app  commandline or
+## from multiprocessing.
+########################################################
+def serve(server='wsgiref', port=8800, reloader=False):
+    """
+    Build the html and js files, if needed, then launch the app.
+
+    The default server is the single-threaded 'wsgiref' server that comes with
+    Python. It's fine for a demo, but for production you'll want to use
+    something better, e.g. server='cherrypy'. For an extensive list of server
+    options, see http://bottlepy.org/docs/dev/deployment.html
+    """
+    bottle.debug(True) ## TODO remove this from production version.
+    doBuild()
 
     ## Launch the web service loop.
     bottle.run(app,
