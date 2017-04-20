@@ -225,5 +225,13 @@ def serve(server='wsgiref', port=8800, reloader=False):
 ###################################################
 if __name__ == '__main__':
     doctest.testmod()
-    serve(reloader=True)
+    import argparse
+    parser = argparse.ArgumentParser(
+              description = "Nearly Pure Python Web App Demo")
+    parser.add_argument('-s', '--server', type=str, default='wsgiref', help="server program to use.")
+    parser.add_argument('-p', '--port', type=int, default=8800, help="port number to serve on.")
+    parser.add_argument('--no-reloader', dest='reloader', action='store_true', help="disable reloader (defult: enabled)")
+    parser.set_defaults(reloader=True)
+    args = parser.parse_args()
+    serve(server=args.server, port=args.port, reloader=args.reloader)
 

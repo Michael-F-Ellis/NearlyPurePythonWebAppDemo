@@ -12,7 +12,7 @@ Author: Mike Ellis
 Copyright 2017 Ellis & Grant, Inc.
 License: MIT License
 """
-__pragma__ ('alias', 'jq', '$')
+#__pragma__ ('alias', 'jq', '$')
 
 import common
 from htmltree import Element as E
@@ -29,7 +29,7 @@ def makeBody():
     title = E('h1', {'style':{'color':'yellow',}}, "Nearly Pure Python Web App Demo")
     projectlink =  E('a',
                       {'href':'https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo'},
-                      'Source code on GitHub')
+                      'Source Code on GitHub')
     subtitle = E('h2', None, [projectlink])
     header = E('div', {'style':{'text-align':'center'}}, [title, subtitle])
 
