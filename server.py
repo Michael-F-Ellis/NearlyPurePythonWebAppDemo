@@ -41,7 +41,6 @@ def buildIndexHtml():
     Returns: None
     Raises:  Nothing
     """
-    jquery_url = 'https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js'
 
     linkcolors = list(zip('link visited hover active'.split(),
                           'red green hotpink blue'.split(),))
@@ -50,9 +49,7 @@ def buildIndexHtml():
     head = E('head', None,
              [
               E('style', None, linkcss),
-              E('script', {'src': jquery_url}, []),
               E('script', {'src':'/client.js', 'charset':'UTF-8'}, []),
-              E('script', None, '$(document).ready(client.start)'),
              ])
 
     body = E('body', {'style':{'background-color':'black'}},
