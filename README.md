@@ -4,8 +4,8 @@
 
   * No static html, css, or js files
   * Demonstrates how to generate and manipulate html in pure python on both the client and server sides.
-  * A useful skeleton that include Ajax JSON state updates from server to client and vice versa.
-  * Uses a little jQuery on the client side (hence the 'nearly' in Nearly Pure)
+  * A useful skeleton that includes Ajax JSON state updates from server to client and vice versa.
+  * Calls a few JS methods directly from Python, hence the 'nearly pure' in the title
   * Powered by Jacques De Hooge's [*Transcrypt™*](https://transcrypt.org/) Python to JS transpiler and Marcel Hellkamp's [*Bottle Python Web Framework.*](http://bottlepy.org/docs/dev/)
 
 ### Who's this for?
@@ -30,6 +30,8 @@
     cd NearlyPurePythonWebAppDemo
     python server.py
   ```
+  * Note: You can choose a different server and port. Do `python server.py -h` for details
+
   * browse to http://localhost:8800 . Your should see a screen like the one below with readout values updating every half-second. Values are color coded as follows:
     * blue:  V <= 2.0 : blue
     * green: 2.0 < V < 8.0 : green
@@ -39,6 +41,7 @@
     * Larger values cause faster drifts through color ranges.
 
   ![Figure 1.](doc/img/nppwad.gif)
+
 
 ### Files
 Here's what comes from the repository:
@@ -90,4 +93,4 @@ If you're already comfortable in Python and understand what goes on in a browser
 <hr>
 Footnotes
 
-<a name="hint">1</a>: Biochemical assistance may be required. ;-)
+<a name="hint">1</a>: Neuro-chemical assistance may be required. ;-)
