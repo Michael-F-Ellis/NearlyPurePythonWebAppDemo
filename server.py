@@ -26,6 +26,7 @@ import common
 from traceback import format_exc
 from htmltree import Element as E
 
+import client
 # Create an app instance.
 app = bottle.Bottle()
 request = bottle.request ## the request object accessor
@@ -206,6 +207,9 @@ def serve(server='wsgiref', port=8800, reloader=False):
     options, see http://bottlepy.org/docs/dev/deployment.html
     """
     bottle.debug(True) ## TODO remove this from production version.
+    ## gets updated on each auto-reaload. Client side tracks this
+    ## to decide if it should reload.
+    _state['server_start_time'] = time.time()
     doBuild()
 
     ## Launch the web service loop.
