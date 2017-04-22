@@ -12,11 +12,11 @@ Author: Mike Ellis
 Copyright 2017 Ellis & Grant, Inc.
 License: MIT License
 """
-
 import common
 from htmltree import Element as E
 
-_state = None
+_state = {}
+_prior_state = {}
 _readouts = None
 
 def makeBody():
@@ -47,6 +47,7 @@ def makeBody():
     bodycontent.C.append(stepform)
 
     ## Use the DOM API to insert rendered content
+    console.log(bodycontent.render())
     document.body.innerHTML = bodycontent.render()
 
 #########################################################
@@ -116,7 +117,8 @@ def post(url, data):
 def getState():
     """ Fetch JSON obj containing monitored variables. """
     def f(data):
-        global _state
+        global _state, _prior_state
+        _prior_state.update(_state)
         _state = data
         triggerCustomEvent('state:update', {})
         #console.log(_state)
@@ -181,7 +183,7 @@ def start ():
     makeBody()
 
     ## Initialize the readouts
-    nonlocal _readouts
+    global _readouts
     _readouts = document.querySelectorAll('.readout')
     for el in _readouts:
         el.style.fontSize = '12'
@@ -195,12 +197,24 @@ def start ():
     document.addEventListener('state:update', update_readouts)
 
     ## define polling function
+    global _state, _prior_state
     def update ():
         getState()
+        ## Reload if server has restarted
+        if (_prior_state is not None and
+            _prior_state.hasOwnProperty('server_start_time')):
+            if _state['server_start_time'] > _prior_state['server_start_time']:
+                location.reload(True)
 
     ## First update
     update ()
     ## Repeat every 0.5 secondss
     window.setInterval (update, 500)
 
-document.addEventListener('DOMContentLoaded', start)
+try:
+    document.addEventListener('DOMContentLoaded', start)
+except NameError:
+    pass
+
+
+
