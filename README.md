@@ -44,7 +44,7 @@
   ![Figure 1.](doc/img/nppwad.gif)
 
 ### Rapid development
-Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](AutoReload.md) for details.
+Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
 
 ### Files
 Here's what comes from the repository:
