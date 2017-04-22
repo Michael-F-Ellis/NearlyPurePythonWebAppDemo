@@ -197,7 +197,7 @@ app_for_wsgi_env = AppWrapperMiddleware(app)
 ## Default wrapper  so we can spawn this app  commandline or
 ## from multiprocessing.
 ########################################################
-def serve(server='wsgiref', port=8800, reloader=False):
+def serve(server='wsgiref', port=8800, reloader=False, debugmode=False):
     """
     Build the html and js files, if needed, then launch the app.
 
@@ -206,10 +206,13 @@ def serve(server='wsgiref', port=8800, reloader=False):
     something better, e.g. server='cherrypy'. For an extensive list of server
     options, see http://bottlepy.org/docs/dev/deployment.html
     """
-    bottle.debug(True) ## TODO remove this from production version.
-    ## gets updated on each auto-reaload. Client side tracks this
+    bottle.debug(debugmode)
+
+    ## Client side tracks _state['server_start_time']
     ## to decide if it should reload.
     _state['server_start_time'] = time.time()
+
+    ## rebuild as needed
     doBuild()
 
     ## Launch the web service loop.
@@ -218,7 +221,7 @@ def serve(server='wsgiref', port=8800, reloader=False):
                server=server,
                port=port,
                reloader=reloader,
-               debug=True)
+               debug=debugmode)
 
 ###################################################
 ## The following runs only when we start from
@@ -229,10 +232,17 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
               description = "Nearly Pure Python Web App Demo")
-    parser.add_argument('-s', '--server', type=str, default='wsgiref', help="server program to use.")
-    parser.add_argument('-p', '--port', type=int, default=8800, help="port number to serve on.")
-    parser.add_argument('--no-reloader', dest='reloader', action='store_true', help="disable reloader (defult: enabled)")
+    parser.add_argument('-s', '--server', type=str, default='wsgiref',
+                        help="server program to use.")
+    parser.add_argument('-p', '--port', type=int, default=8800,
+                        help="port number to serve on.")
+    parser.add_argument('--no-reloader', dest='reloader', action='store_false',
+                        help="disable reloader (defult: enabled)")
+    parser.add_argument('--no-debug', dest='debug', action='store_false',
+                        help="disable debug mode (defult: enabled)")
     parser.set_defaults(reloader=True)
+    parser.set_defaults(debug=True)
     args = parser.parse_args()
-    serve(server=args.server, port=args.port, reloader=args.reloader)
+    serve(server=args.server, port=args.port,
+          reloader=args.reloader, debugmode=args.debug)
 

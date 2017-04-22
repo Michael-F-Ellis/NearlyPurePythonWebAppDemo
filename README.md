@@ -5,6 +5,7 @@
   * No static html, css, or js files
   * Demonstrates how to generate and manipulate html in pure python on both the client and server sides.
   * A useful skeleton that includes Ajax JSON state updates from server to client and vice versa.
+  * Automatically reloads server and client pages when any source file changes.
   * Calls a few JS methods directly from Python, hence the 'nearly pure' in the title
   * Powered by Jacques De Hooge's [*Transcrypt™*](https://transcrypt.org/) Python to JS transpiler and Marcel Hellkamp's [*Bottle Python Web Framework.*](http://bottlepy.org/docs/dev/)
 
@@ -42,6 +43,8 @@
 
   ![Figure 1.](doc/img/nppwad.gif)
 
+### Rapid development
+Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](AutoReload.md) for details.
 
 ### Files
 Here's what comes from the repository:
