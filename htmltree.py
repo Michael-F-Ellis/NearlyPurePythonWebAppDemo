@@ -20,6 +20,8 @@ class Element:
                     values must be (string | list of strings | dict of styles)
         content : (None | string | list of (strings and/or elements)
                     elements must have a 'render' method that returns valid html.
+                  <style> tag gets special handling. You may pass the css as a dict of
+                  the form {'selector': {'property':'value', ...}, ...}
 
     Instance methods:
         render()
@@ -49,13 +51,21 @@ class Element:
     >>> doc.render()
     '<html><head></head><body style="background-color:black;"><h1>Title</h1><br/></body></html>'
 
+    >>> style = E('style', None, {'p.myclass': {'margin': '4px', 'font-color': 'blue'}})
+    >>> style.render()
+    '<style>p.myclass { margin:4px; font-color:blue; }</style>'
     """
     def __init__(self, tagname, attrs, content):
         ## Validate arguments
         assert isinstance(tagname, str)
+        if tagname == '!--':
+            raise ValueError("Sorry, can't handle html comments yet.")
         assert isinstance(attrs, (dict, type(None)))
-        assert isinstance(content, (list, str, type(None))) ## None means an 'empty' element with no closing tag
-        self.T = tagname
+        if tagname.lower() == 'style':
+            assert isinstance(content, (str, dict))
+        else:
+            assert isinstance(content, (list, str, type(None))) ## None means an 'empty' element with no closing tag
+        self.T = tagname.lower()
         self.A = attrs
         self.C = content
 
@@ -69,11 +79,13 @@ class Element:
                 a = a.replace('_', '-') ## replace underscores with hyphens
                 if isinstance(v, str):
                     rlist.append(' {}="{}"'.format(a,v))
+                elif v is None:
+                    rlist.append(' {}'.format(a)) # bare attribute, e.g. 'disabled'
                 elif isinstance(v,list):
                     _ = ' '.join(v)     ## must be list of strings
                     rlist.append(' {}="{}"'.format(a, _))
                 elif isinstance(v,dict) and a=='style':
-                    rlist.append(' {}="{}"'.format(a,renderstyle(v)))
+                    rlist.append(' {}="{}"'.format(a,renderInlineStyle(v)))
                 else:
                     msg="Don't know what to with {}={}".format(a,v)
                     raise ValueError(msg)
@@ -90,6 +102,8 @@ class Element:
             ## render the content
             if isinstance(self.C, str):
                 rlist.append(self.C)
+            elif self.T == "style":
+                rlist.append(renderCss(self.C))
             else:
                 for c in self.C:
                     if isinstance(c, str):
@@ -107,7 +121,7 @@ class Element:
 
         return ''.join(rlist)
 
-def renderstyle(d):
+def renderInlineStyle(d):
     """If d is a dict of styles, return a proper style string """
     if isinstance(d, dict):
         style=[]
@@ -115,7 +129,8 @@ def renderstyle(d):
             ## for convenience, convert underscores in keys to hyphens
             kh = k.replace('_', '-')
             style.append("{}:{};".format(kh, v))
-        result = ' '.join(style)
+        separator = ' '
+        result = separator.join(style)
     elif isinstance(d, str):
         result = d
     else:
@@ -123,6 +138,23 @@ def renderstyle(d):
         raise TypeError(msg)
     return result
 
+def renderCss(d, newlines=True):
+    """ If d is a dict of rulesets, render a string of CSS rulesets """
+    if not isinstance(d, dict):
+        msg = "Expected dictionary of CSS rulesets, got {}.".format(d)
+        raise TypeError(msg)
+    else:
+        rulesetlist = []
+        for selector, declaration in d.items():
+            #print("In renderCss with selector = {}".format(selector))
+            if not isinstance(selector, str):
+                msg = "Expected selector string, got {}".format(selector)
+                raise TypeError(msg)
+
+            ruleset = [selector, '{',  renderInlineStyle(declaration), '}']
+            rulesetlist.append(" ".join(ruleset))
+        separator = '\n' if newlines else ' '
+        return separator.join(rulesetlist)
 
 ## The 'skip' pragma tells the Transcrypt Python to JS transpiler to
 ## ignore a section of code. It's needed here because the 'run as script'
