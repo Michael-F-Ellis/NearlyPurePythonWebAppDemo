@@ -26,7 +26,11 @@ import common
 from traceback import format_exc
 from htmltree import Element as E
 
+## We import client.py so the Bottle reloader will track it for changes
+## It has no use in this module and no side effects other than a small
+## overhead to load it.
 import client
+
 # Create an app instance.
 app = bottle.Bottle()
 request = bottle.request ## the request object accessor
