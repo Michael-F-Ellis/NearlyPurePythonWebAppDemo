@@ -54,18 +54,31 @@ class Element:
     >>> style = E('style', None, {'p.myclass': {'margin': '4px', 'font-color': 'blue'}})
     >>> style.render()
     '<style>p.myclass { margin:4px; font-color:blue; }</style>'
+
+    >>> comment = E('!--', None, "This is out!")
+    >>> comment.render()
+    '<!-- This is out! -->'
+
+    >>> comment.C = [body]
+    >>> comment.render()
+    '<!-- <body style="background-color:black;"><h1>Title</h1><br/></body> -->'
+
     """
-    def __init__(self, tagname, attrs, content):
+    def __init__(self, tagname, attrs={}, content=[]):
         ## Validate arguments
         assert isinstance(tagname, str)
-        if tagname == '!--':
-            raise ValueError("Sorry, can't handle html comments yet.")
+        self.T = tagname.lower()
+        if tagname == '!--': ## HTML comment
+            attrs = None
+            self.endtag = " -->"
+        else:
+            self.endtag = "</{}>".format(self.T)
+
         assert isinstance(attrs, (dict, type(None)))
         if tagname.lower() == 'style':
             assert isinstance(content, (str, dict))
         else:
             assert isinstance(content, (list, str, type(None))) ## None means an 'empty' element with no closing tag
-        self.T = tagname.lower()
         self.A = attrs
         self.C = content
 
@@ -90,14 +103,15 @@ class Element:
                     msg="Don't know what to with {}={}".format(a,v)
                     raise ValueError(msg)
 
-        if self.C is None:
+        if self.C is None and self.T != "!--":
             ## It's a singleton tag. Close it accordingly.
-            rlist.append("/>")
-            needs_end_tag = False
+            self.endtag = "/>"
         else:
-            ## Close the tag normally
-            rlist.append('>')
-            needs_end_tag = True
+            ## Close the tag
+            if self.T == "!--":
+                rlist.append(" ")
+            else:
+                rlist.append('>')
 
             ## render the content
             if isinstance(self.C, str):
@@ -116,8 +130,7 @@ class Element:
                         msg="Don't know what to do with content item {}".format(c)
                         raise ValueError(msg)
 
-        if needs_end_tag:
-            rlist.append('</{}>'.format(self.T))
+        rlist.append(self.endtag)
 
         return ''.join(rlist)
 
