@@ -5,35 +5,58 @@ Description: Provides a general html tree class, Element (often imported as E).
 This file is part of NearlyPurePythonWebAppDemo
 https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo
 
+Compatibilty with Transcrypt Python to JS transpiler:
+    By design, this module is intended for use with both CPython and
+    Transcrypt.  The latter implies certain constraints on the Python
+    constructs that may be used.  Compatibility with Transcrypt also requires
+    the use of two __pragma__ calls to achieve compilation. These are contained
+    in line comments and hence have no effect when running under CPython.
+
+    The benefit of Transcrypt compatibility is complete freedom to use Python
+    to define HTML/CSS at run time on the client side, i.e. in transpiled JS
+    running in a browser.
+
+
 Author: Michael Ellis
 Copyright 2017 Ellis & Grant, Inc.
 License: MIT License
 """
+# __pragma__('kwargs')
 class Element:
     """
-    Generalized nested html element with recursive rendering
+    Generalized nested html element tree with recursive rendering
 
     Constructor arguments:
         tagname : valid html tag name (string)
+
         attrs   : attributes (dict | None)
                     keys must be valid attribute names (string)
                     values must be (string | list of strings | dict of styles)
-        content : (None | string | list of (strings and/or elements)
-                    elements must have a 'render' method that returns valid html.
+
+        content : (None | string | int | float | list of (strings/ints/floats and/or elements)
+                  elements must have a 'render' method that returns valid html.
                   <style> tag gets special handling. You may pass the css as a dict of
                   the form {'selector': {'property':'value', ...}, ...}
-
-    Instance methods:
-        render()
-
-    Static methods:
-        renderstyle(d) -- moved to module level until Transcrypt supports
-                       -- method decorators.
 
     Public Members:
         T : tagname
         A : attribute dict
         C : content
+
+    Instance methods:
+        render(indent=-1) -- defaults to no indentation, no newlines
+                             indent >= 0 behaves according to the indented()
+                             function in this module.
+
+    Helper functions (defined at module level):
+
+        indented(contentstring, indent) -- applies indentation to rendered content
+
+        renderstyle(d) -- Special handline for inline style attributes.
+                          d is a dictionary of style definitions
+
+        renderCss(d, indent=-1) -- Special handling for <style> tag
+                                   d is a dict of CSS rulesets
 
     Doctests:
     >>> E = Element
@@ -82,11 +105,14 @@ class Element:
         self.A = attrs
         self.C = content
 
-    def render(self):
+    def render(self, indent=-1):
         """ Recursively generate html """
         rlist = []
         ## Render the tag with attributes
-        rlist.append("<{}".format(self.T))
+        opentag = "<{}".format(self.T)
+        rlist.append(indented(opentag, indent))
+
+        ## Render the attributes
         if self.A is not None:
             for a, v in self.A.items():
                 a = a.replace('_', '-') ## replace underscores with hyphens
@@ -106,6 +132,7 @@ class Element:
         if self.C is None and self.T != "!--":
             ## It's a singleton tag. Close it accordingly.
             self.endtag = "/>"
+            closing = self.endtag
         else:
             ## Close the tag
             if self.T == "!--":
@@ -113,26 +140,48 @@ class Element:
             else:
                 rlist.append('>')
 
-            ## render the content
+            ## Render the content
             if isinstance(self.C, str):
-                rlist.append(self.C)
+                rlist.append(indented(self.C, indent))
             elif self.T == "style":
-                rlist.append(renderCss(self.C))
+                rlist.append(renderCss(self.C, indent))
             else:
+                cindent = indent + 1 if indent >= 0 else indent
                 for c in self.C:
-                    if isinstance(c, str):
-                        rlist.append(c)
-                    elif isinstance(c, (int, float)):
-                        rlist.append(str(c))
+                    if isinstance(c, (str, int, float)):
+                        rlist.append(indented(c, cindent))
                     elif hasattr(c, 'render'):
-                        rlist.append(c.render()) ## here's the recursion!
+                        rlist.append(c.render(cindent)) ## here's the recursion!
                     else:
                         msg="Don't know what to do with content item {}".format(c)
                         raise ValueError(msg)
-
-        rlist.append(self.endtag)
+            closing = indented(self.endtag, indent)
+        rlist.append(closing)
 
         return ''.join(rlist)
+
+def indented(contentstring, indent=-1):
+    """
+    Return indented content.
+    indent >= 0 prefixes content with newline + 2 * indent spaces.
+    indent < 0 returns content unchanged
+
+    Docstrings:
+    >>> indented("foo bar", -1)
+    'foo bar'
+
+    >>> indented("foo bar", 0)
+    '\\nfoo bar'
+
+    >>> indented("foo bar", 1)
+    '\\n  foo bar'
+
+    """
+    if not indent >= 0:
+        return contentstring
+    else:
+        return "\n{}{}".format("  " * indent, contentstring)
+
 
 def renderInlineStyle(d):
     """If d is a dict of styles, return a proper style string """
@@ -151,7 +200,7 @@ def renderInlineStyle(d):
         raise TypeError(msg)
     return result
 
-def renderCss(d, newlines=True):
+def renderCss(d, indent=-1):
     """ If d is a dict of rulesets, render a string of CSS rulesets """
     if not isinstance(d, dict):
         msg = "Expected dictionary of CSS rulesets, got {}.".format(d)
@@ -164,10 +213,12 @@ def renderCss(d, newlines=True):
                 msg = "Expected selector string, got {}".format(selector)
                 raise TypeError(msg)
 
-            ruleset = [selector, '{',  renderInlineStyle(declaration), '}']
-            rulesetlist.append(" ".join(ruleset))
-        separator = '\n' if newlines else ' '
-        return separator.join(rulesetlist)
+            ruleset = " ".join([selector, '{',  renderInlineStyle(declaration), '}'])
+            rulesetlist.append(indented(ruleset, indent))
+        #separator = '\n' if newlines else ' '
+        return ''.join(rulesetlist)
+
+# __pragma__('nokwargs')
 
 ## The 'skip' pragma tells the Transcrypt Python to JS transpiler to
 ## ignore a section of code. It's needed here because the 'run as script'
