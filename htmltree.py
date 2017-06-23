@@ -87,7 +87,7 @@ class Element:
     '<!-- <body style="background-color:black;"><h1>Title</h1><br/></body> -->'
 
     """
-    def __init__(self, tagname, attrs={}, content=[]):
+    def __init__(self, tagname, attrs, content):
         ## Validate arguments
         assert isinstance(tagname, str)
         self.T = tagname.lower()
