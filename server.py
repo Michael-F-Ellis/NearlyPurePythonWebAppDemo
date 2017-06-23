@@ -24,7 +24,7 @@ import subprocess
 import bottle
 import common
 from traceback import format_exc
-from htmltree import Element as E
+from htmltree.htmltree import *
 
 ## We import client.py so the Bottle reloader will track it for changes
 ## It has no use in this module and no side effects other than a small
@@ -47,20 +47,18 @@ def buildIndexHtml():
     Raises:  Nothing
     """
 
-    linkcolors = list(zip('link visited hover active'.split(),
-                          'red green hotpink blue'.split(),))
-    linkcss = '\n'.join(['a:{} {{color: {};}}'.format(s,c) for s,c in linkcolors])
+    style = Style(**{'a:link':dict(color='red'),
+                     'a:visited':dict(color='green'),
+                     'a:hover':dict(color='hotpink'),
+                     'a:active':dict(color='blue'),
+                     })
 
-    head = E('head', None,
-             [
-              E('style', None, linkcss),
-              E('script', {'src':'/client.js', 'charset':'UTF-8'}, []),
-             ])
+    head = Head(style, Script(src='/client.js', charset='UTF-8'))
 
-    body = E('body', {'style':{'background-color':'black'}},
-             "Replace me on the client side.")
+    body = Body("Replace me on the client side",
+                style=dict(background_color='black'))
 
-    doc = E('html', None,[head, body])
+    doc = Html(head, body)
     return doc.render()
 
 
@@ -166,7 +164,7 @@ def doBuild():
     approach taken here.
     """
     ## build the index.html file
-    index_sources = ('server.py', 'htmltree.py', 'common.py')
+    index_sources = ('server.py', 'htmltree/htmltree.py', 'common.py')
     target = '__html__/index.html'
     if needsBuild(target, index_sources):
         os.makedirs(os.path.dirname(target), exist_ok=True)
@@ -174,7 +172,7 @@ def doBuild():
             print(buildIndexHtml(),file=f)
 
     ## build the client.js file
-    client_sources = ('client.py', 'htmltree.py', 'common.py')
+    client_sources = ('client.py', 'htmltree/htmltree.py', 'common.py')
     if needsBuild('__javascript__/client.js', client_sources):
         proc = subprocess.Popen('transcrypt -b -n -m client.py', shell=True)
         if proc.wait() != 0:

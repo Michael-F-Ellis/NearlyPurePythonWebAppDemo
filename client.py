@@ -13,7 +13,7 @@ Copyright 2017 Ellis & Grant, Inc.
 License: MIT License
 """
 import common
-from htmltree import Element as E
+from htmltree.htmltree import *
 
 _state = {}
 _prior_state = {}
@@ -25,24 +25,28 @@ def makeBody():
     that the code in htmltree.py works in Transcrypted JS as well as in Python.
     It could have been accomplished just as easily on the server side.
     """
-    title = E('h1', {'style':{'color':'yellow',}}, "Nearly Pure Python Web App Demo")
-    projectlink =  E('a',
-                      {'href':'https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo'},
-                      'Source Code on GitHub')
-    subtitle = E('h2', None, [projectlink])
-    header = E('div', {'style':{'text-align':'center'}}, [title, subtitle])
+    banner = H1("Nearly Pure Python Web App Demo", style=dict(color='yellow'))
+    projectlink = A('Source Code on GitHub',
+                    href='https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo')
+    subbanner = H2(projectlink)
+
+    header = Div(banner, subbanner, style=dict(text_align='center'))
 
     readouts = []
     for datakey in common.statekeys:
-        readouts.append(E('div', {'class':'readout', 'data-key':datakey}, 'waiting ...'))
+        readouts.append(Div('waiting ...', _class='readout', data_key=datakey))
 
-    stepinput = E('label', {'style':{'color':'white'}},
-            ["Step Size", E('input', {'id':'stepinput', 'type':'text','style':{'margin':'1em'}}, None)])
-    stepsubmit = E('input', {'type':'submit'}, None)
-    stepform = E('form', {'id':'setstep',},
-            [E('div',{'style':{'margin':'20px'}},[stepinput, stepsubmit])])
+    stepinput = Label("Step Size",
+                  Input(id='stepinput', type='text', style=dict(margin='1em')),
+                style=dict(color='white'))
 
-    bodycontent = E('div', None, [header])
+    stepsubmit = Input(type="submit", value="Submit")
+
+    stepform = Form(
+                 Div(stepinput, stepsubmit, style=dict(margin='20px')),
+               id='setstep')
+
+    bodycontent = Div(header)
     bodycontent.C.extend(readouts)
     bodycontent.C.append(stepform)
 
