@@ -27,6 +27,9 @@
   * [htmltree](https://github.com/Michael-F-Ellis/htmltree) >= 0.7.5
       * pip install htmltree
 
+### NEW Single Source File
+Use the recently added `allinone.py` which combines the content of 3 files into a single one that automatically builds the Javascript and launches the server. Just do `python allinone.py` instead of `python server.py`.  Note that `allinone.py` will likely be the focus of future development and, hence, will continue to diverge from the behavior of `server.py + client.py + common.py`.
+
 ### Installation and usage
   ```
     git clone https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo 
@@ -40,18 +43,146 @@
     * green: 2.0 < V < 8.0 : green
     * red:   V >= 8.0 red
 
-  * Change the Step Size to any number between 0 and 10.
+  * Use the slider to change the Step Size to any number between 0 and 10.
     * Larger values cause faster drifts through color ranges.
 
-  ![Figure 1.](doc/img/nppwad.gif)
+  ![Figure 1.](doc/img/nppwad2.gif)
 
 ### Rapid development
-  * Clean pythonic syntax for generating html.  See [htmltree](https://github.com/Michael-F-Ellis/htmltree) docs for details.
   * Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
+  * Clean pythonic syntax for generating html.  See [htmltree](https://github.com/Michael-F-Ellis/htmltree) docs for details. Here's the function that creates all the body html in the demo above.
+```
+    def makeBody():
+        """
+        Create HTML for the body element content. This is done as a demo to show
+        that the code in htmltree.py works in Transcrypted JS as well as in Python.
+        It could have been accomplished just as easily on the server side.
 
-### NEW Single Source File
-You can also use the recently added `allinone.py` which combines the content of 3 files into a single one that automatically builds the Javascript and launches the server. Just do `python allinone.py` instead of `python server.py`.  Note that `allinone.py` will likely be the focus of future development and, hence, will probably diverge from the behavior of `server.py + client.py + common.py`.
+        Uses JS: .innerHTML
+        """
+        banner = H1("Nearly Pure Python Web App Demo", style=dict(color='yellow'))
+        projectlink = A('Source Code on GitHub',
+                        href='https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo')
+        subbanner = H2(projectlink)
 
+        header = Div(banner, subbanner, style=dict(text_align='center'))
+
+        ## Each readout is a div containing a meter element and a span to hold
+        ## a text representaton of the current value.
+        readouts = []
+        for datakey in common.statekeys:
+            meter = Meter(min="0.1", low="2.0", high="8.0", max="10.0",
+                          style=dict(width="25%", margin_top="5px", margin_bottom="5px"))
+            value = Span()
+            readouts.append(Div(meter, value, _class='readout', data_key=datakey))
+
+
+        ## The step input is a range slider input with a label on the left and
+        ## a span for the current value on the right.
+        slider =  Input(id='stepinput', _type='range',
+                        min="0.1", max="10.0", step="0.1",
+                        style=dict(margin='1em'))
+
+        stepinput = Label("Step Size", slider,
+                          style=dict(color='white'))
+
+        ## Make a div container for the step input.
+        stepdiv = Div(stepinput,
+                      Span(id='stepvalue', style=dict(color="white")),
+                      style=dict(margin='20px'))
+
+        ## Assemble header, readouts, and stepdiv within a div
+        bodycontent = Div(header)
+        bodycontent.C.extend(readouts)
+        bodycontent.C.append(stepdiv)
+
+        ## Use the DOM API to insert rendered content
+        print(bodycontent.render(0))
+        document.body.innerHTML = bodycontent.render()
+```
+and here is the output `makeBody()` produces:
+```
+<div>
+  <div style="text-align:center;">
+    <h1 style="color:yellow;">
+      Nearly Pure Python Web App Demo
+    </h1>
+    <h2>
+      <a href="https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo">
+        Source Code on GitHub
+      </a>
+    </h2>
+  </div>
+  <div class="readout" data-key="item0">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item1">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item2">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item3">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item4">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item5">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item6">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item7">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item8">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div class="readout" data-key="item9">
+    <meter min="0.1" high="8.0" style="margin-bottom:5px; margin-top:5px;" max="10.0" low="2.0">
+    </meter>
+    <span>
+    </span>
+  </div>
+  <div style="margin:20px;">
+    <label style="color:white;">
+      Step Size
+      <input style="margin:1em;" max="10.0" type="range" min="0.1" step="0.1" id="stepinput">
+    </label>
+    <span style="color:white;" id="stepvalue">
+    </span>
+  </div>
+</div>
+```
 ### Files
 Here's what comes from the repository:
 ```
