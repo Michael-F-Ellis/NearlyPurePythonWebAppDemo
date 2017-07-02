@@ -31,7 +31,6 @@
   ```
     git clone https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo 
     cd NearlyPurePythonWebAppDemo
-    <del>python server.py</del>
     python allinone.py
   ```
   * Note: You can choose a different server and port. Do `python server.py -h` for details
