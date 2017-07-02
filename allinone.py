@@ -80,11 +80,6 @@ except NameError:
     import bottle
     from traceback import format_exc
 
-    ## We import client.py so the Bottle reloader will track it for changes
-    ## It has no use in this module and no side effects other than a small
-    ## overhead to load it.
-    import client
-
     # Create an app instance.
     app = bottle.Bottle()
     request = bottle.request ## the request object accessor
@@ -207,6 +202,7 @@ except NameError:
         Create the content index.html file. For the purposes of the demo, we
         create it with an empty body element to be filled in on the client side.
         """
+        viewport = Meta(name='viewport', content='width=device-width, initial_scale=1')
 
         style = Style(**{'a:link':dict(color='red'),
                          'a:visited':dict(color='green'),
@@ -214,7 +210,10 @@ except NameError:
                          'a:active':dict(color='blue'),
                          })
 
-        head = Head(style, Script(src='/allinone.js', charset='UTF-8'))
+        head = Head(viewport,
+                     style,
+                     Script(src='/allinone.js',
+                     charset='UTF-8'))
 
         body = Body("Replace me on the client side",
                     style=dict(background_color='black'))
@@ -316,26 +315,37 @@ else:
 
         header = Div(banner, subbanner, style=dict(text_align='center'))
 
+        ## Each readout is a div containing a meter element and a span to hold
+        ## a text representaton of the current value.
         readouts = []
         for datakey in common.statekeys:
-            readouts.append(Div('waiting ...', _class='readout', data_key=datakey))
+            meter = Meter(min="0.1", low="2.0", high="8.0", max="10.0",
+                          style=dict(width="25%", margin_top="5px", margin_bottom="5px"))
+            value = Span()
+            readouts.append(Div(meter, value, _class='readout', data_key=datakey))
 
-        stepinput = Label("Step Size",
-                      Input(id='stepinput', type='text', style=dict(margin='1em')),
-                    style=dict(color='white'))
 
-        stepsubmit = Input(type="submit", value="Submit")
+        ## The step input is a range slider input with a label on the left and
+        ## a span for the current value on the right.
+        slider =  Input(id='stepinput', _type='range',
+                        min="0.1", max="10.0", step="0.1",
+                        style=dict(margin='1em'))
 
-        stepform = Form(
-                     Div(stepinput, stepsubmit, style=dict(margin='20px')),
-                   id='setstep')
+        stepinput = Label("Step Size", slider,
+                          style=dict(color='white'))
 
+        ## Make a div container for the step input.
+        stepdiv = Div(stepinput,
+                      Span(id='stepvalue', style=dict(color="white")),
+                      style=dict(margin='20px'))
+
+        ## Assemble header, readouts, and stepdiv within a div
         bodycontent = Div(header)
         bodycontent.C.extend(readouts)
-        bodycontent.C.append(stepform)
+        bodycontent.C.append(stepdiv)
 
         ## Use the DOM API to insert rendered content
-        console.log(bodycontent.render())
+        print(bodycontent.render(0))
         document.body.innerHTML = bodycontent.render()
 
     # jQuery replacement functions
@@ -422,7 +432,7 @@ else:
         Triggered on each readout by 'state:update' custom event. We check each
         state value and alter it's text color accordingly.
 
-        Uses JS: .getAttribute, .textContent, .setAttribute, .getElementById,
+        Uses JS: .getAttribute, .children, .textContent, .setAttribute, .getElementById,
                  .activeElement
         """
         ## queue the new values and colora
@@ -441,16 +451,20 @@ else:
 
         ## write them to the DOM
         for el, value, color in queue:
-            el.textContent = value
-            el.setAttribute('style', "color:{}; font-size:32;".format(color))
+            meter, span = el.children[0], el.children[1]
+            span.textContent = value
+            span.setAttribute('style', "padding-left:0.5em; color:{}; font-size:32;".format(color))
+            meter.value = value
 
         ## Also update the stepsize input with the current value, but
         ## check that the element does not have focus before doing so
         ## tp prevent update while user is typing.
         inp = document.getElementById('stepinput')
+        readout = document.getElementById('stepvalue')
         if inp != document.activeElement:
             inp.value = _state['stepsize']
-
+            readout.style.color = "white"
+            readout.innerHTML = _state['stepsize']
 
     def handle_stepchange(event):
         """
@@ -472,6 +486,14 @@ else:
             alert(fail_msg)
             return False
 
+    def handle_stepinput(event):
+        """ Update the readout as the stepchange slider is dragged. """
+        readout = document.getElementById('stepvalue')
+        v = document.getElementById('stepinput').value
+        readout.style.color = "yellow"
+        readout.innerHTML = v
+        return False
+
     def start ():
         """
         Client-side app execution starts here.
@@ -490,8 +512,9 @@ else:
 
 
         ## Bind event handler to step change form
-        ssform = document.getElementById('setstep')
-        ssform.addEventListener('submit', handle_stepchange)
+        ssinput = document.getElementById('stepinput')
+        ssinput.addEventListener('change', handle_stepchange)
+        ssinput.addEventListener('input', handle_stepinput)
 
         ## Bind custom event handler to document
         document.addEventListener('state:update', update_readouts)
