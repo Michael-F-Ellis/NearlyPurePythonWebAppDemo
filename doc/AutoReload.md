@@ -2,7 +2,7 @@
 
 Other things being equal, the rate of progress in application development is directly related to the time it takes to make and test one small change. By default, the NearlyPurePythonWebAppDemo (NPPWAD hereafter) skeleton will detect changes in any of the Python source files and reload both the server and the client side -- including a rebuild of `client.js` from `client.py` if needed.
 
-
+*Note: The mechanism described here is also incorporated in the new single-file skeleton, `allinone.py`.*
 ## How it works
 
 Bottle already provides an auto-reloader and a debug mode. The Bottle Tutorial explains both of those [here](https://bottlepy.org/docs/dev/tutorial.html#debug-mode). NPPWAD takes advantage of them and extends them by
