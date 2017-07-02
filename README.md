@@ -46,7 +46,8 @@
   ![Figure 1.](doc/img/nppwad.gif)
 
 ### Rapid development
-Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
+  * Clean pythonic syntax for generating html.  See [htmltree](https://github.com/Michael-F-Ellis/htmltree) docs for details.
+  * Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
 
 ### NEW Single Source File
 You can also use the recently added `allinone.py` which combines the content of 3 files into a single one that automatically builds the Javascript and launches the server. Just do `python allinone.py` instead of `python server.py`.  Note that `allinone.py` will likely be the focus of future development and, hence, will probably diverge from the behavior of `server.py + client.py + common.py`.
