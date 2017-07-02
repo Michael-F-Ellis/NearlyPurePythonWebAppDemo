@@ -1,4 +1,0 @@
-[submodule "htmltree"]
-	path = htmltree
-	url = https://github.com/Michael-F-Ellis/htmltree
-	branch = master
