@@ -36,7 +36,7 @@ Use the recently added `allinone.py` which combines the content of 3 files into 
     cd NearlyPurePythonWebAppDemo
     python allinone.py
   ```
-  * Note: You can choose a different server and port. Do `python server.py -h` for details
+  * Note: You can choose a different server and port. Do `python allinone.py -h` for details
 
   * browse to http://localhost:8800 . Your should see a screen like the one below with readout values updating every half-second. Values are color coded as follows:
     * blue:  V <= 2.0 : blue
