@@ -27,8 +27,8 @@
   * [htmltree](https://github.com/Michael-F-Ellis/htmltree) >= 0.7.5
       * pip install htmltree
 
-### NEW Single Source File
-Use the recently added `allinone.py` which combines the content of 3 files into a single one that automatically builds the Javascript and launches the server. Just do `python allinone.py` instead of `python server.py`.  Note that `allinone.py` will likely be the focus of future development and, hence, will continue to diverge from the behavior of `server.py + client.py + common.py`.
+### NEW Single Source Files
+Use the recently added `allinone.py` which combines the content of 3 files into a single one that automatically builds the Javascript and launches the server. Just do `python allinone.py` instead of `python server.py`. There are also two other new files, `minimal_allinone.py` and `serverless.py`.  These files will likely be the focus of future development and, hence, will continue to diverge from the behavior of `server.py + client.py + common.py` which should now be considered deprecated, or at least discouraged.
 
 ### Installation and usage
   ```
@@ -49,7 +49,7 @@ Use the recently added `allinone.py` which combines the content of 3 files into 
   ![Figure 1.](doc/img/nppwad2.gif)
 
 ### Rapid development
-  * Saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
+  * While the app is running, saving a change to any source file triggers a rebuild and reload of the server and the client page. See [Auto Reload](doc/AutoReload.md) for details.
   * Clean pythonic syntax for generating html.  See [htmltree](https://github.com/Michael-F-Ellis/htmltree) docs for details. Here's the function that creates all the body html in the demo above.
 ```
     def makeBody():
@@ -183,6 +183,20 @@ and here is the output `makeBody()` produces:
   </div>
 </div>
 ```
+### Starting Smaller
+If `allinone.py` is a least somewhat close to where you want to start with development, you can simply make a copy under a new names and start hacking, but you might find a better starting point for your development in one of the two additional skeleton files provided in the repo.
+
+## minimal_allinone.py
+This skeleton omits most of the content from allinone.py but retains the server instance, command line options and automatic reloading. The client-server state exchange is also kept but in very minimal form. The display is simply a headline with a counter updating once per second with a count supplied from the server.
+
+![Figure 2.](doc/img/minimal.gif)
+
+
+## serverless.py
+As the name implies, this skeleton has the server code removed. It's a once-through script that generates an index.html file and and a js file with Transcrypt. The script finishes by using Python's built-in web browser module to open the index file as a `file://` URL in your default web browser. When the index file loads it fetches and runs the JS. The display is identical in form to the one from `minimal_allinone.py` but the counter updating is handled locally in JS. 
+
+![Figure 3.](doc/img/serverless.gif)
+
 ### Files
 Here's what comes from the repository:
 ```
@@ -196,7 +210,9 @@ Here's what comes from the repository:
 │   ├── example_wsgi.py
 │   └── img
 │       └── nppwad.gif
+├── minimal_allinone.py.py
 ├── server.py (deprecated)
+├── serverless.py
 
 ```
 Ater running `allinone.py` for the first time, files are generated and the directory tree will look like:
@@ -221,16 +237,18 @@ Ater running `allinone.py` for the first time, files are generated and the direc
 │   ├── example_wsgi.py
 │   └── img
 │       └── nppwad.gif
+├── minimal_allinone.py.py
 ├── server.py
+├── serverless.py
 
 ```
 
 ## Parting Thoughts
 ### The Bad News
-While this approach can save you from the frustrations of dealing with .html, .css, and .js syntax, it can't save you from the need to *understand* the Document Object Model, browser events, ajax, http request routing, etc.
+While this approach to development can save you from the frustrations of dealing with .html, .css, and .js syntax, it can't save you from the need to *understand* the Document Object Model, browser events, ajax, http request routing, etc.
 
 ### The Good News
-If you're already comfortable in Python and understand what goes on in a browser and web server, you can use this skeleton as a starting point for developing entirely in Python.
+If you're already comfortable in Python and understand what goes on in a browser and web server, you can use these skeletons as a starting point for developing entirely in Python.
 <hr>
 Footnotes
 
