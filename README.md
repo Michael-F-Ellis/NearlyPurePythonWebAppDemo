@@ -183,17 +183,17 @@ and here is the output `makeBody()` produces:
   </div>
 </div>
 ```
-### Starting Smaller
-If `allinone.py` is a least somewhat close to where you want to start with development, you can simply make a copy under a new names and start hacking, but you might find a better starting point for your development in one of the two additional skeleton files provided in the repo.
+## Starting Smaller
+If `allinone.py` is at least somewhat close to where you want to start with development, you can simply make a copy under a new names and start hacking, but you might find a better starting point for your development in one of the two additional skeleton files provided in the repo.
 
-## minimal_allinone.py
+### minimal_allinone.py
 This skeleton omits most of the content from allinone.py but retains the server instance, command line options and automatic reloading. The client-server state exchange is also kept but in very minimal form. The display is simply a headline with a counter updating once per second with a count supplied from the server.
 
 ![Figure 2.](doc/img/minimal.gif)
 
 
-## serverless.py
-As the name implies, this skeleton has the server code removed. It's a once-through script that generates an index.html file and and a js file with Transcrypt. The script finishes by using Python's built-in web browser module to open the index file as a `file://` URL in your default web browser. When the index file loads it fetches and runs the JS. The display is identical in form to the one from `minimal_allinone.py` but the counter updating is handled locally in JS. 
+### serverless.py
+As the name implies, this skeleton has the server code removed. It's a once-through script that generates an index.html file and a js file with Transcrypt. The script finishes by using Python's built-in web browser module to open the index file as a `file://` URL in your default web browser. When the index file loads it fetches and runs the JS. The display is identical in form to the one from `minimal_allinone.py` but the counter updating is handled locally in JS. 
 
 ![Figure 3.](doc/img/serverless.gif)
 
