@@ -156,7 +156,6 @@ else:
         _updater = update_counter()
 
         ## define polling function
-        global _state, _prior_state
         def update ():
             next(_updater)
 
