@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Combines contents of common.py, client.py, server.py into a single
-module. There are 3 sections:
+A once-through script that creates and loads HTML and Javascript.
+Uses Transcrypt and CPython's webbrowser module. There are 3 sections:
 
     Common Code -- used by both client and server
     Server Code -- Specific to the web service
@@ -12,27 +12,11 @@ You can search for the above names in your editor for convenient navigation.
 External dependencies:
     Python >= 3.5  (Available from www.python.org)
     pip install transcrypt
-    pip install bottlepy
     pip install htmltree
 
 USAGE:
 Typically:
-    $ python minimal_allinone.py
-
-Help is available with the -h option.
-
-$ python minimal_allinone.py -h
-usage: minimal_allinone.py [-h] [-s SERVER] [-p PORT] [--no-reloader] [--no-debug]
-
-Nearly Pure Python Web App Demo
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SERVER, --server SERVER
-                        server program to use.
-  -p PORT, --port PORT  port number to serve on (default: 8800).
-  --no-reloader         disable reloader (defult: enabled)
-  --no-debug            disable debug mode (defult: enabled)
+    $ python serverless.py
 
 Author: Mike Ellis
 Copyright 2017 Ellis & Grant, Inc
@@ -43,11 +27,11 @@ https://github.com/Michael-F-Ellis/NearlyPurePythonWebAppDemo
 """
 #######################################################################
 ## Common Code
-## Used by both client and server
+## Visible to CPython and Transcrypt
 #######################################################################
 from htmltree.htmltree import *
 
-## If working from a renamed copy of this module, change the folowing
+## If working from a renamed copy of this module, change the next
 ## line accordingly.
 _module_basename = 'serverless'
 _module_pyname = _module_basename + '.py'
@@ -73,8 +57,8 @@ except NameError:
     def buildIndexHtml():
         """
         Create the content index.html file. For the purposes of the demo, we
-        create it with an empty body element to be filled in on the client side.
-        Returns file URL.
+        create it with an empty body element to be filled in on the client
+        side.  Returns file URL.
         """
         viewport = Meta(name='viewport', content='width=device-width, initial-scale=1')
 
@@ -132,20 +116,21 @@ else:
 
 
 
-    _updater = None
+    _updater = None ## Initialized below as a generator instance.
+
     def start ():
         """
         Client-side app execution starts here.
 
         Uses JS: .getElementById, .addEventListener,
-                 .hasOwnProperty, location, .setInterval
+                 .textContent, .hasOwnProperty, .setInterval
         """
         ## Create the body content
         makeBody()
 
-        ## Bind event handlers ##
-        counter = document.getElementById('counter')
+        ## Counter update generator ##
         def update_counter(e):
+            counter = document.getElementById('counter')
             count = 0
             while True:
                 count += 1
